@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload and Predict</title>
+    <script>
+        function captureImage() {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+
+            fileInput.onchange = function(event) {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800; // Resize width (adjust as needed)
+                        const scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scaleSize;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                        const resizedImage = canvas.toDataURL('image/jpeg', 0.8); // Adjust quality (0.8 = 80%)
+                        document.getElementById('imageInput').value = resizedImage;
+                        document.getElementById('uploadForm').submit(); // Automatically submit the form
+                    };
+                };
+
+                reader.readAsDataURL(file);
+            };
+
+            fileInput.click();
+        }
+    </script>
+</head>
+<body>
+    <h1>Upload Dental Image</h1>
+    <form id="uploadForm" action="/" method="POST">
+        <!-- Hidden input to store resized Base64 image -->
+        <input type="hidden" id="imageInput" name="image">
+        <button type="button" onclick="captureImage()">Upload Image</button>
+    </form>
+</body>
+</html>
