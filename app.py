@@ -1,7 +1,8 @@
 import os
 import base64
 import numpy as np
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask_cors import CORS
 from PIL import Image
 from io import BytesIO
 import joblib
@@ -11,6 +12,9 @@ from sklearn.preprocessing import LabelEncoder
 
 app = Flask(__name__, template_folder='templates')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB (adjust as needed)
+
+# Enable CORS for all routes
+CORS(app, origins=['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:8080', 'http://127.0.0.1:8080'])
 
 
 # Load your trained model and label encoder
@@ -74,5 +78,47 @@ def result(filename):
     predicted_label = request.args.get('predicted_label', 'Unknown')
     return render_template('result.html', filename=filename, predicted_label=predicted_label)
 
+@app.route('/upload', methods=['POST'])
+def upload_image():
+    try:
+        # Get the image data from the request
+        data = request.get_json()
+        if not data or 'image' not in data:
+            return jsonify({'error': 'No image data provided'}), 400
+        
+        image_data = data['image']
+        
+        # Remove the "data:image/png;base64," prefix if present
+        if ',' in image_data:
+            image_data = image_data.split(',')[1]
+        
+        # Decode the Base64 string
+        image_bytes = base64.b64decode(image_data)
+        
+        # Save the image
+        image_path = os.path.join('static', 'uploads', 'captured_image.png')
+        with open(image_path, 'wb') as f:
+            f.write(image_bytes)
+        
+        # Preprocess and predict
+        image_array = preprocess_image(image_bytes)
+        prediction = model.predict(image_array)
+        predicted_label = label_encoder.inverse_transform(prediction)[0]
+        
+        # Build the full image URL
+        image_url = request.host_url.rstrip('/') + '/static/uploads/captured_image.png'
+        
+        # Return the result
+        return jsonify({
+            'success': True,
+            'path': image_url,
+            'predicted_label': predicted_label,
+            'message': f'Analysis complete: {predicted_label}'
+        })
+        
+    except Exception as e:
+        print(f"Error processing image: {str(e)}")
+        return jsonify({'error': 'Failed to process image'}), 500
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=8080, debug=True)

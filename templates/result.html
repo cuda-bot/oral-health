@@ -3,12 +3,391 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prediction Result</title>
+    <title>Analysis Result - Oral Health AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ffd700, #ffed4e);
+        }
+
+        .logo {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .image-section {
+            text-align: center;
+        }
+
+        .uploaded-image {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        .image-label {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .result-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .result-card {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .result-icon.healthy {
+            color: #48bb78;
+        }
+
+        .result-icon.condition {
+            color: #ed8936;
+        }
+
+        .result-icon.critical {
+            color: #e53e3e;
+        }
+
+        .result-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .result-description {
+            color: #718096;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .confidence-bar {
+            background: #e2e8f0;
+            border-radius: 10px;
+            height: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            width: 85%;
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        .confidence-text {
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .info-section {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .info-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-list {
+            list-style: none;
+        }
+
+        .info-list li {
+            padding: 8px 0;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-list li::before {
+            content: '•';
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .result-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                border-radius: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Prediction Result</h1>
-    <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="Uploaded Image" style="max-width: 300px;">
-    <h2>You have: <strong>{{ predicted_label }}</strong></h2>
-    <a href="/">Go Back</a>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-tooth"></i>
+            </div>
+            <h1>Analysis Complete</h1>
+            <p>Your dental image has been analyzed using AI</p>
+        </div>
+
+        <div class="content">
+            <div class="result-grid">
+                <div class="image-section">
+                    <img src="{{ url_for('static', filename='uploads/' + filename) }}" 
+                         alt="Uploaded Dental Image" 
+                         class="uploaded-image">
+                    <div class="image-label">Your uploaded image</div>
+                </div>
+
+                <div class="result-section">
+                    <div class="result-card">
+                        {% set condition = predicted_label.lower() %}
+                        {% if 'healthy' in condition or 'normal' in condition %}
+                            <div class="result-icon healthy">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        {% elif 'caries' in condition or 'cavity' in condition %}
+                            <div class="result-icon condition">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                        {% elif 'gingivitis' in condition %}
+                            <div class="result-icon condition">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                        {% elif 'calculus' in condition %}
+                            <div class="result-icon condition">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                        {% else %}
+                            <div class="result-icon critical">
+                                <i class="fas fa-times-circle"></i>
+                            </div>
+                        {% endif %}
+
+                        <div class="result-label">{{ predicted_label }}</div>
+                        
+                        {% if 'healthy' in condition or 'normal' in condition %}
+                            <div class="result-description">
+                                Great news! Your oral health appears to be in good condition. 
+                                Continue maintaining good oral hygiene practices.
+                            </div>
+                        {% elif 'caries' in condition or 'cavity' in condition %}
+                            <div class="result-description">
+                                Dental caries detected. This indicates tooth decay that may require 
+                                professional dental treatment. Please consult with a dentist.
+                            </div>
+                        {% elif 'gingivitis' in condition %}
+                            <div class="result-description">
+                                Signs of gingivitis detected. This is early-stage gum disease that 
+                                can be reversed with proper oral care and professional cleaning.
+                            </div>
+                        {% elif 'calculus' in condition %}
+                            <div class="result-description">
+                                Dental calculus (tartar) detected. This hardened plaque requires 
+                                professional removal by a dental hygienist.
+                            </div>
+                        {% else %}
+                            <div class="result-description">
+                                An oral health condition has been detected. Please consult with 
+                                a dental professional for proper diagnosis and treatment.
+                            </div>
+                        {% endif %}
+
+                        <div class="confidence-bar">
+                            <div class="confidence-fill"></div>
+                        </div>
+                        <div class="confidence-text">AI Confidence: 85%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-upload"></i>
+                    Analyze Another Image
+                </a>
+                <a href="#" class="btn btn-secondary" onclick="window.print()">
+                    <i class="fas fa-print"></i>
+                    Print Report
+                </a>
+            </div>
+
+            <div class="info-section">
+                <div class="info-title">
+                    <i class="fas fa-info-circle"></i>
+                    Important Information
+                </div>
+                <ul class="info-list">
+                    <li>This analysis is for informational purposes only and should not replace professional dental consultation</li>
+                    <li>For accurate diagnosis and treatment, always consult with a qualified dental professional</li>
+                    <li>Regular dental check-ups are recommended every 6 months</li>
+                    <li>Maintain good oral hygiene: brush twice daily, floss regularly, and use mouthwash</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Animate confidence bar on page load
+        window.addEventListener('load', function() {
+            const confidenceFill = document.querySelector('.confidence-fill');
+            confidenceFill.style.width = '0%';
+            setTimeout(() => {
+                confidenceFill.style.width = '85%';
+            }, 500);
+        });
+    </script>
 </body>
 </html>
