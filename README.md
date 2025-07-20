@@ -140,20 +140,55 @@ The application is fully responsive and optimized for:
 - **Secure Storage**: Proper file handling and cleanup
 - **Data Protection**: No permanent storage of sensitive data
 
-## 🚀 Deployment
+## 🚀 Deployment (Production)
 
-### Production Build (React)
-```bash
-cd dental-image-upload
-npm run build
-```
+### 1. Backend (ML API) on Railway
 
-### Production Server (Flask)
-```bash
-# Set environment variables
-export FLASK_ENV=production
-python app.py
-```
+- Push all code (including `api/`, `models/`, `Procfile`, `requirements.txt`) to GitHub.
+- Go to [railway.app](https://railway.app) and log in.
+- Click **New Project** → **Deploy from GitHub repo**.
+- Select your repo.
+- Railway will auto-detect Python and use your `Procfile`:
+  ```
+  web: python api/app.py
+  ```
+- Wait for build and deployment to finish.
+- **Copy your Railway public API URL** (e.g., `https://your-app-name.up.railway.app`).
+
+### 2. Frontend (React) on Vercel
+
+- Go to [vercel.com/dashboard](https://vercel.com/dashboard).
+- Click **New Project** and import your GitHub repo.
+- Set **Root Directory**: `dental-image-upload`
+- **Build Command**: `npm run build`
+- **Output Directory**: `build`
+- **Add Environment Variable**:
+  - **Key:** `REACT_APP_API_URL`
+  - **Value:** Your Railway API URL (e.g., `https://your-app-name.up.railway.app`)
+- Deploy!
+- After deployment, open your Vercel frontend URL and test image upload.
+
+### 3. Environment Variable Recap
+
+- **Vercel (Frontend):**
+  - `REACT_APP_API_URL` = Railway backend URL
+- **Railway (Backend):**
+  - No special variables needed unless you add secrets/config
+
+### 4. Troubleshooting
+
+- **Image upload fails/405 error:**  
+  Make sure `REACT_APP_API_URL` is set in Vercel and points to your Railway backend.
+- **Model not found:**  
+  Ensure `models/` directory is inside `api/` and files are present in Railway.
+- **CORS issues:**  
+  Your backend uses Flask-CORS with `origins=['*']`. For production, restrict to your frontend domain.
+- **Logs:**  
+  Check Railway and Vercel dashboards for build/runtime logs.
+
+---
+
+**Congratulations! Your ML-powered web app is live and ready for users!**
 
 ## 🤝 Contributing
 

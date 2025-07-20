@@ -1,148 +1,76 @@
-# Vercel Deployment Guide
+# 🚀 Oral Health AI Deployment Guide (Railway + Vercel)
 
-This guide will help you deploy your Oral Health AI app on Vercel.
+This guide explains how to deploy your full-stack ML-powered app:
+- **Backend (Flask + ML):** Railway
+- **Frontend (React):** Vercel
 
-## Prerequisites
+---
 
-1. **GitHub Account**: Make sure your code is pushed to a GitHub repository
-2. **Vercel Account**: Sign up at [vercel.com](https://vercel.com)
-3. **Node.js**: For local testing (optional)
+## 1. Backend Deployment (Railway)
 
-## Deployment Steps
+1. **Push all code to GitHub** (including `api/`, `models/`, `Procfile`, `requirements.txt`).
+2. Go to [railway.app](https://railway.app) and log in.
+3. Click **New Project** → **Deploy from GitHub repo**.
+4. Select your repo (`oral-health`).
+5. Railway will auto-detect Python and use your `Procfile`:
+   - Should run: `web: python api/app.py`
+6. Wait for build and deployment to finish.
+7. **Copy your Railway public API URL** (e.g., `https://your-app-name.up.railway.app`).
+8. Test the API: visit `/` for health check, `/upload` for predictions.
 
-### Step 1: Deploy the Backend API
+---
 
-1. **Go to Vercel Dashboard**
-   - Visit [vercel.com/dashboard](https://vercel.com/dashboard)
-   - Click "New Project"
+## 2. Frontend Deployment (Vercel)
 
-2. **Import Repository**
-   - Connect your GitHub account if not already connected
-   - Select your repository
-   - Set the following configuration:
-     - **Framework Preset**: Other
-     - **Root Directory**: `api`
-     - **Build Command**: Leave empty
-     - **Output Directory**: Leave empty
-     - **Install Command**: `pip install -r requirements.txt`
+1. Go to [vercel.com/dashboard](https://vercel.com/dashboard).
+2. Click **New Project** and import your GitHub repo.
+3. Set **Root Directory**: `dental-image-upload`.
+4. **Build Command**: `npm run build`
+5. **Output Directory**: `build`
+6. **Add Environment Variable**:
+   - **Key:** `REACT_APP_API_URL`
+   - **Value:** Your Railway API URL (e.g., `https://your-app-name.up.railway.app`)
+7. Deploy!
+8. After deployment, open your Vercel frontend URL and test image upload.
 
-3. **Environment Variables** (Optional)
-   - Add any environment variables if needed
+---
 
-4. **Deploy**
-   - Click "Deploy"
-   - Wait for deployment to complete
-   - Note down the API URL (e.g., `https://your-api.vercel.app`)
+## 3. Environment Variable Recap
 
-### Step 2: Deploy the Frontend
+- **Vercel (Frontend):**
+  - `REACT_APP_API_URL` = Railway backend URL
+- **Railway (Backend):**
+  - No special variables needed unless you add secrets/config
 
-1. **Create Another Project**
-   - Go back to Vercel Dashboard
-   - Click "New Project" again
-   - Select the same repository
+---
 
-2. **Configure Frontend**
-   - **Framework Preset**: Create React App
-   - **Root Directory**: `dental-image-upload`
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `build`
+## 4. Troubleshooting
 
-3. **Environment Variables**
-   - Add the following environment variable:
-     - **Name**: `REACT_APP_API_URL`
-     - **Value**: Your API URL from Step 1 (e.g., `https://your-api.vercel.app`)
+- **Image upload fails/405 error:**
+  - Make sure `REACT_APP_API_URL` is set in Vercel and points to your Railway backend.
+- **Model not found:**
+  - Ensure `models/` directory is inside `api/` and files are present in Railway.
+- **CORS issues:**
+  - Your backend uses Flask-CORS with `origins=['*']`. For production, restrict to your frontend domain.
+- **Logs:**
+  - Check Railway and Vercel dashboards for build/runtime logs.
 
-4. **Deploy**
-   - Click "Deploy"
-   - Wait for deployment to complete
+---
 
-### Step 3: Test Your Deployment
+## 5. Useful Links
+- [Railway Dashboard](https://railway.app/dashboard)
+- [Vercel Dashboard](https://vercel.com/dashboard)
+- [React Create React App Docs](https://create-react-app.dev/)
+- [Flask Docs](https://flask.palletsprojects.com/)
 
-1. **Test the API**
-   - Visit your API URL (e.g., `https://your-api.vercel.app`)
-   - You should see: `{"status": "healthy", "message": "Oral Health AI API is running"}`
+---
 
-2. **Test the Frontend**
-   - Visit your frontend URL
-   - Try uploading an image to test the full functionality
+## 6. Next Steps & Improvements
+- Add custom domains to Vercel/Railway for a professional URL
+- Add user authentication, history, or more ML features
+- Monitor logs and errors for reliability
+- Optimize your ML model for speed/accuracy
 
-## Troubleshooting
+---
 
-### Common Issues
-
-1. **API Not Working**
-   - Check if the model files are in the `api/models/` directory
-   - Verify the API URL in your frontend environment variables
-   - Check Vercel function logs for errors
-
-2. **CORS Issues**
-   - The API is configured to accept requests from any origin (`*`)
-   - In production, you should restrict this to your frontend domain
-
-3. **Model Loading Issues**
-   - Ensure the model files are properly copied to the `api/models/` directory
-   - Check the file paths in `app.py`
-
-4. **Pip Installation Error**
-   If you get a pip installation error like:
-   ```
-   ERROR: Exception:
-   ```
-   
-   **Solution 1: Use the simplified app**
-   - The project now includes `app_simple.py` which is optimized for Vercel
-   - Update your Vercel configuration to use `app_simple.py` instead of `app.py`
-   
-   **Solution 2: Use minimal requirements**
-   - Try using `requirements_minimal.txt` instead of `requirements.txt`
-   - Update the install command in Vercel to: `pip install -r requirements_minimal.txt`
-   
-   **Solution 3: Manual deployment**
-   - In Vercel dashboard, set the following:
-     - **Framework Preset**: Python
-     - **Root Directory**: `api`
-     - **Build Command**: `pip install -r requirements.txt`
-     - **Output Directory**: Leave empty
-     - **Install Command**: Leave empty
-
-### Environment Variables
-
-Make sure to set these in your Vercel project settings:
-
-**Frontend:**
-- `REACT_APP_API_URL`: Your API URL
-
-**Backend:**
-- No specific environment variables needed for basic functionality
-
-## Production Considerations
-
-1. **Security**
-   - Restrict CORS origins to your frontend domain
-   - Add authentication if needed
-   - Consider rate limiting
-
-2. **Performance**
-   - The models are loaded on each function call (cold start)
-   - Consider using a persistent server for better performance
-
-3. **Storage**
-   - Images are returned as base64 in the response
-   - For production, consider using cloud storage (AWS S3, Cloudinary, etc.)
-
-## Alternative Deployment Options
-
-If Vercel continues to have issues, consider these alternatives:
-
-1. **Railway**: Often more reliable for Python ML apps
-2. **Render**: Good for Python applications
-3. **Heroku**: Traditional but reliable option
-4. **DigitalOcean App Platform**: More control and scalability
-
-## Support
-
-If you encounter issues:
-1. Check Vercel function logs
-2. Verify all files are in the correct directories
-3. Test locally first using `npm start` and `python app.py`
-4. Try the simplified app version (`app_simple.py`) 
+**Congratulations! Your ML-powered web app is live and ready for users!** 
