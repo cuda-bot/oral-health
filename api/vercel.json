@@ -2,14 +2,22 @@
     "version": 2,
     "builds": [
         {
-            "src": "app.py",
-            "use": "@vercel/python"
+            "src": "app_simple.py",
+            "use": "@vercel/python",
+            "config": {
+                "runtime": "python3.9"
+            }
         }
     ],
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "app.py"
+            "dest": "app_simple.py"
         }
-    ]
+    ],
+    "functions": {
+        "app_simple.py": {
+            "maxDuration": 30
+        }
+    }
 }

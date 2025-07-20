@@ -83,6 +83,28 @@ This guide will help you deploy your Oral Health AI app on Vercel.
    - Ensure the model files are properly copied to the `api/models/` directory
    - Check the file paths in `app.py`
 
+4. **Pip Installation Error**
+   If you get a pip installation error like:
+   ```
+   ERROR: Exception:
+   ```
+   
+   **Solution 1: Use the simplified app**
+   - The project now includes `app_simple.py` which is optimized for Vercel
+   - Update your Vercel configuration to use `app_simple.py` instead of `app.py`
+   
+   **Solution 2: Use minimal requirements**
+   - Try using `requirements_minimal.txt` instead of `requirements.txt`
+   - Update the install command in Vercel to: `pip install -r requirements_minimal.txt`
+   
+   **Solution 3: Manual deployment**
+   - In Vercel dashboard, set the following:
+     - **Framework Preset**: Python
+     - **Root Directory**: `api`
+     - **Build Command**: `pip install -r requirements.txt`
+     - **Output Directory**: Leave empty
+     - **Install Command**: Leave empty
+
 ### Environment Variables
 
 Make sure to set these in your Vercel project settings:
@@ -108,9 +130,19 @@ Make sure to set these in your Vercel project settings:
    - Images are returned as base64 in the response
    - For production, consider using cloud storage (AWS S3, Cloudinary, etc.)
 
+## Alternative Deployment Options
+
+If Vercel continues to have issues, consider these alternatives:
+
+1. **Railway**: Often more reliable for Python ML apps
+2. **Render**: Good for Python applications
+3. **Heroku**: Traditional but reliable option
+4. **DigitalOcean App Platform**: More control and scalability
+
 ## Support
 
 If you encounter issues:
 1. Check Vercel function logs
 2. Verify all files are in the correct directories
-3. Test locally first using `npm start` and `python app.py` 
+3. Test locally first using `npm start` and `python app.py`
+4. Try the simplified app version (`app_simple.py`) 
