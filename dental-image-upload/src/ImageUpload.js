@@ -1,6 +1,7 @@
 // ImageUpload.js
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
+import config from './config';
 
 const ImageUpload = () => {
     const [loading, setLoading] = useState(false);
@@ -48,7 +49,7 @@ const ImageUpload = () => {
                 const resizedImage = canvas.toDataURL('image/jpeg', 0.8);
 
                 try {
-                    const response = await axios.post("http://localhost:8080/upload", { image: resizedImage });
+                    const response = await axios.post(`${config.API_BASE_URL}/upload`, { image: resizedImage });
                     setUploadedImageUrl(response.data.path);
                     setPrediction(response.data.predicted_label);
                     setMessage(response.data.message || "Analysis completed successfully!");
