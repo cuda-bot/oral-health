@@ -1,1 +1,6 @@
-Flask==2.2.5 
+Flask
+Flask-CORS
+Pillow
+numpy
+scikit-learn
+joblib 
